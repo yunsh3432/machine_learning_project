@@ -53,19 +53,18 @@ def oversampling(example):
     return tempexample     
 
 
-# In[3]:
+# In[2]:
 
 
 xy_train= np.loadtxt('poker_hand_training.csv',delimiter = ',',dtype = np.float32)
 xy_test =  np.loadtxt('poker_hand_test.csv',delimiter = ',',dtype = np.float32)
 
 overxy_train = oversampling(xy_train)
-#overxy_train = xy_train
 
 x_data = overxy_train[:,0:-1]
 y_data = overxy_train[:,[-1]]
 
-x_test = xy_test[:0:-1]
+x_test = xy_test[:,0:-1]
 y_test = xy_test[:,[-1]]
 nb_classes = 10 #0~9
 
@@ -75,7 +74,7 @@ Y_one_hot = tf.one_hot(Y, nb_classes)
 Y_one_hot = tf.reshape(Y_one_hot, [-1, nb_classes]) 
 
 
-# In[4]:
+# In[3]:
 
 
 #varialble
@@ -84,7 +83,7 @@ learning_epochs = 15
 batch_size = 100
 
 
-# In[5]:
+# In[4]:
 
 
 W1 = tf.get_variable("W1", shape=[10,16],
@@ -198,7 +197,7 @@ hypothesis = tf.matmul(layer19,W20)+b20
      
 
 
-# In[6]:
+# In[5]:
 
 
 #optimizer
@@ -232,8 +231,20 @@ for epoch in range(learning_epochs):
 print('Learning Finished!')
 
 
-# In[ ]:
+# In[6]:
 
 
 #test output
+predicted = tf.argmax(hypothesis ,1)
+correnct_prediction = tf.equal(predicted,tf.argmax(Y_one_hot,1))
+accuracy = tf.reduce_mean(tf.cast(correnct_prediction,tf.float32))
+
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
+
+for i in range(11):
+    feed_dict = {X: x_test, Y: y_test}
+    _, _ ,acc= sess.run([cost, optimizer,accuracy], feed_dict=feed_dict)
+    
+    print('Acc: ', acc)
 
